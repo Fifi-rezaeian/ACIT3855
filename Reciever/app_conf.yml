@@ -1,0 +1,11 @@
+version: 1
+eventstore1:
+  url: http://localhost:8090/food_delivery/order  
+eventstore2:
+  url: http://localhost:8090/food_delivery/scheduled_order
+events:
+  hostname: kafkaservice.eastus2.cloudapp.azure.com
+  port: 9092
+  topic: events
+  
+  

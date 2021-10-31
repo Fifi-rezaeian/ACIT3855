@@ -1,0 +1,97 @@
+---
+openapi: 3.0.0
+info:
+  title: Food Delivery API
+  description: This API recieves food order events from food delivery applications.
+  contact:
+    email: fifi.rezaeian99@gmail.com
+  version: 1.0.0
+tags:
+- name: Orders
+  description: Operations available to a analysis
+paths:
+  /food_delivery/order:
+    post:
+      tags:
+      - Orders
+      summary: Reports order datails
+      description: Adds a new order details to the system
+      operationId: app.report_order_details
+      requestBody:
+        description: details of the item to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderDetails'
+      responses:
+        "201":
+          description: item created
+        "400":
+          description: invalid input, object invalid
+        "409":
+          description: an existing item already exists
+  /food_delivery/scheduled_order:
+    post:
+      tags:
+      - Orders
+      summary: Reports scheduled order datails
+      description: Adds a new  scheduled order details to the system
+      operationId: app.report_scheduled_order_details
+      requestBody:
+        description: details of the item to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduledOrderDetails'
+      responses:
+        "201":
+          description: item created
+        "400":
+          description: invalid input, object invalid
+        "409":
+          description: an existing item already exists
+components:
+  schemas:
+    OrderDetails:
+      required:
+      - customer_id
+      - resturant_name
+      - delivery_loc
+      - price
+      type: object
+      properties:
+        customer_id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        resturant_name:
+          type: string
+          example: nandos1
+        delivery_loc:
+          type: string
+          example: 3345-1295 seymour street, vancouver, BC
+        price:
+          type: integer
+          example: 123456789
+    ScheduledOrderDetails:
+      required:
+      - customer_id
+      - resturant_name
+      - delivery_loc
+      - scheduled_time
+      type: object
+      properties:
+        customer_id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        resturant_name:
+          type: string
+          example: nandos2
+        delivery_loc:
+          type: string
+          example: 3345-1295 seymour street, vancouver, BC
+        scheduled_time:
+          type: string
+          format: date_time
+          example: 2016-08-29T09:12:33.001Z
