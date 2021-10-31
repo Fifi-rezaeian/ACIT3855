@@ -1,0 +1,127 @@
+openapi: 3.0.0
+info:
+  description: This API provides audit info
+  version: "1.0.0"
+  title: Audit API
+  contact: 
+    email: frezaeian@my.bcit.ca
+paths:
+  /food_delivery/order:
+    get: 
+      summary: gets reports for order details from history
+      operationId: app.get_report_order_details
+      description: Gets report of order details from the event store 
+      parameters:
+        - name: index
+          in: query
+          description: gets order details at the index in the event store
+          schema: 
+            type: integer
+            example: 100
+      responses:
+        '200':
+          description: successfully retured a list of order events
+          content:
+            application/json:
+              schema:
+                type: object
+                items: 
+                  $ref: '#/components/schemas/OrderDetails'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Not Found
+          content: 
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /food_delivery/scheduled_order:
+    get: 
+      summary: gets reports for scheduled order details from history
+      operationId: app.get_report_scheduled_order_details
+      description: Gets report of scheduled order details from the event store 
+      parameters:
+        - name: index
+          in: query
+          description: gets scheduled order details at the index in the event store
+          schema: 
+            type: integer
+            example: 100
+      responses:
+        '200':
+          description: successfully retured a list of scheduled order events
+          content:
+            application/json:
+              schema:
+                type: object
+                items: 
+                  $ref: '#/components/schemas/ScheduledOrderDetails'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Not Found
+components:
+  schemas:
+    OrderDetails:
+      required:
+      - customer_id
+      - resturant_name
+      - delivery_loc
+      - price
+      type: object
+      properties:
+        customer_id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        resturant_name:
+          type: string
+          example: nandos1
+        delivery_loc:
+          type: string
+          example: 3345-1295 seymour street, vancouver, BC
+        price:
+          type: integer
+          example: 123456789
+    ScheduledOrderDetails:
+      required:
+      - customer_id
+      - resturant_name
+      - delivery_loc
+      - scheduled_time
+      type: object
+      properties:
+        customer_id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        resturant_name:
+          type: string
+          example: nandos2
+        delivery_loc:
+          type: string
+          example: 3345-1295 seymour street, vancouver, BC
+        scheduled_time:
+          type: string
+          format: date_time
+          example: 2016-08-29T09:12:33
+
+
+
