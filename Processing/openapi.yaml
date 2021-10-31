@@ -1,0 +1,57 @@
+---
+openapi: 3.0.0
+info:
+  title: Stats API 
+  description: This API provides event stats
+  contact:
+    email: fifi.rezaeian99@gmail.com
+  version: 1.0.0
+
+paths:
+  /stats:
+    get:
+      summary: Get the event stats
+      operationId: app.get_stats
+      description: Gets order and scheduled order processsed statistics
+      responses:
+        "200":
+          description: Successfully returned a list of order events
+          content:
+            application/json:
+              schema:
+                type: object 
+                items:
+                  $ref: '#/components/schemas/ReadingStats'
+        "400":
+          description: invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  message: 
+                    type: string
+
+components:
+  schemas:
+    ReadingStats:
+      required:
+      - num_order_readings
+      - max_order_reading
+      - num_sdorder_readings
+      - max_sdorder_reading
+      properties:
+        num_order_readings:
+          type: integer
+          example: 500000
+        max_order_reading:
+          type: integer
+          example: 500000
+        num_sdorder_readings:
+          type: integer
+          example: 500000
+        max_sdorder_reading:
+          type: integer
+          example: 500000
+      type: object
+  
