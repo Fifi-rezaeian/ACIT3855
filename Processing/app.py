@@ -1,6 +1,7 @@
 """a basic connexion app called app.py"""
 import datetime
-from typing import Counter, OrderedDict
+from typing import Counter
+#from typing import OrderedDict
 import connexion
 from connexion import NoContent
 import json
