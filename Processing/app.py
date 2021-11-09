@@ -12,6 +12,7 @@ import logging.config
 import logging.handlers
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
+from flask_cors import CORS, cross_origin
 
 with open("app_conf.yml", 'r') as f:
     app_config = yaml.safe_load(f.read())
