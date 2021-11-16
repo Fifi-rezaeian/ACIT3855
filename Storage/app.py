@@ -14,6 +14,7 @@ import datetime, json
 from pykafka import KafkaClient
 from pykafka.common import OffsetType
 from threading import Thread
+from sqlalchemy import and_
 
 with open("app_conf.yml", 'r') as f:
     app_config = yaml.safe_load(f.read())
@@ -68,13 +69,16 @@ def report_scheduled_order_details(body):
     logger.debug("stored event scheduled order request with a unique id of customer_id")
 
 
-def get_report_order_details(timestamp):
+def get_report_order_details(start_timestamp, end_timestamp):
     """ Gets new order details readings after the timestamp """
 
     session = DB_SESSION()
-    timestamp_datetime = datetime.datetime.strptime(timestamp,"%Y-%m-%dT%H:%M:%SZ")
+    start_timestamp_datetime = datetime.datetime.strptime(start_timestamp,"%Y-%m-%dT%H:%M:%SZ")
+    end_timestamp_datetime = datetime.datetime.strptime(end_timestamp, "%Y-%m-%dT%H:%M:%SZ")
 
-    readings= session.query(Order).filter(Order.date_created >= timestamp_datetime)
+    readings= session.query(Order).filter(
+        and_(Order.date_created >= start_timestamp_datetime, Order.date_created < end_timestamp_datetime)
+    )
 
     results_list = []
 
@@ -83,19 +87,22 @@ def get_report_order_details(timestamp):
 
     session.close()
 
-    logger.info("Query for order details after %s returns %d results" % (timestamp, len(results_list)))
+    logger.info("Query for order details after %s returns %d results" % (start_timestamp, end_timestamp, len(results_list)))
 
     return results_list, 200
 
 
-def get_report_scheduled_order_details(timestamp):
+def get_report_scheduled_order_details(start_timestamp, end_timestamp):
     """ Gets new order details readings after the timestamp """
 
     session = DB_SESSION()
-    timestamp_datetime = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
+    start_timestamp_datetime = datetime.datetime.strptime(start_timestamp,"%Y-%m-%dT%H:%M:%SZ")
+    end_timestamp_datetime = datetime.datetime.strptime(end_timestamp, "%Y-%m-%dT%H:%M:%SZ")
 
-    readings= session.query(ScheduledOrder).filter(ScheduledOrder.date_created>= timestamp_datetime)
-
+    readings= session.query(ScheduledOrder).filter(
+        and_(ScheduledOrder.date_created >= start_timestamp_datetime, ScheduledOrder.date_created < end_timestamp_datetime)
+    )
+    
     results_list = []
 
     for reading in readings:
@@ -103,7 +110,7 @@ def get_report_scheduled_order_details(timestamp):
 
     session.close()
 
-    logger.info("Query for order details after %s returns %d results" % (timestamp, len(results_list)))
+    logger.info("Query for order details after %s returns %d results" % (start_timestamp, end_timestamp, len(results_list)))
 
     return results_list, 200
 
