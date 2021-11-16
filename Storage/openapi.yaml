@@ -37,13 +37,21 @@ paths:
       operationId: app.get_report_order_details
       description: Gets report of order details added after timestamp 
       parameters:
-        - name: timestamp
+        - name: start_timestamp
           in: query
           description: limits the number of items on a page
           schema: 
             type: string
             format: date-time
             example: 2016-08-29T09:12:33.001Z
+        - name: end_timestamp
+          in: query
+          description: limits the number of items on a page
+          schema: 
+            type: string
+            format: date-time
+            example: 2016-08-29T09:12:33.001Z
+            
       responses:
         '200':
           description: successfully retured a list of order events
@@ -89,13 +97,20 @@ paths:
       operationId: app.get_report_scheduled_order_details
       description: Gets report of scheduled order details added after timestamp 
       parameters:
-        - name: timestamp
+        - name: start_timestamp
           in: query
           description: limits the number of items on a page
           schema: 
             type: string
             format: date-time
-            example: 2016-08-29T09:12:33
+            example: 2016-08-29T09:12:33.001Z
+        - name: end_timestamp
+          in: query
+          description: limits the number of items on a page
+          schema: 
+            type: string
+            format: date-time
+            example: 2016-08-29T09:12:33.001Z
       responses:
         '200':
           description: successfully retured a list of scheduled order events
