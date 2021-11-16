@@ -15,6 +15,7 @@ export default function EndpointAudit(props) {
             .then((result)=>{
 				console.log("Received Audit Results for " + props.endpoint)
                 setLog(result);
+		setIndex(rand_val);
                 setIsLoaded(true);
             },(error) =>{
                 setError(error)
