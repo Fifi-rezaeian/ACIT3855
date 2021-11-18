@@ -56,6 +56,7 @@ services:
       - TARGET_ENV=test
     volumes:
       - /home/fifi/config/receiver:/config
+      - /home/fifi/logs:/logs
     depends_on:
       - "kafka"
   storage:
@@ -66,6 +67,7 @@ services:
       - TARGET_ENV=test
     volumes:
       - /home/fifi/config/storage:/config
+      - /home/fifi/logs:/logs
     depends_on:
       - "kafka"
       - "db"
@@ -76,6 +78,7 @@ services:
       - TARGET_ENV=test
     volumes:
       - /home/fifi/config/processing:/config
+      - /home/fifi/logs:/logs
     depends_on:
       - "storage"
   audit_log:
@@ -86,6 +89,7 @@ services:
       - TARGET_ENV=test
     volumes:
       - /home/fifi/config/audit_log:/config
+      - /home/fifi/logs:/logs
     depends_on:
       - "kafka"
   dashboard:
