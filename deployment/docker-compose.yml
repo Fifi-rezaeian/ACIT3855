@@ -79,6 +79,7 @@ services:
     volumes:
       - /home/fifi/config/processing:/config
       - /home/fifi/logs:/logs
+      - processing-db:/data
     depends_on:
       - "storage"
   audit_log:
@@ -102,3 +103,4 @@ services:
 # Names our volume
 volumes:
   my-db:
+  processing-db:
