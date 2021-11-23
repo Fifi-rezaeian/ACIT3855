@@ -40,18 +40,18 @@ logger.info("App Conf File: %s" % app_conf_file)
 logger.info("Log Conf File: %s" % log_conf_file)
 logger.info("starting receiver for event messages")
 
-#current_retries = 0
-#while current_retries < app_config["maximum_number_of_retries"]:
-    #logger.info("trying to connenct to kafka current retries = %d", (current_retries))
-    #try:
-        #client = KafkaClient(hosts=f'{app_config["events"]["hostname"]}:{app_config["events"]["port"]}')
-        #topic = client.topics[str.encode(app_config["events"]["topic"])]
-        #producer = topic.get_sync_producer()
-        #currrent_retries = app_config["maximum_number_of_retries"]
-    #except:
-        #logger.error("connection failed to connenct to kafka")
-        #time.sleep(app_config["sleep_time"])
-        #current_retries += 1
+current_retries = 0
+while current_retries < app_config["maximum_number_of_retries"]:
+    logger.info("trying to connenct to kafka current retries = %d", (current_retries))
+    try:
+        client = KafkaClient(hosts=f'{app_config["events"]["hostname"]}:{app_config["events"]["port"]}')
+        topic = client.topics[str.encode(app_config["events"]["topic"])]
+        producer = topic.get_sync_producer()
+        currrent_retries = app_config["maximum_number_of_retries"]
+    except:
+        logger.error("connection failed to connenct to kafka")
+        time.sleep(app_config["sleep_time"])
+        current_retries += 1
 
 # My Functions
 
@@ -68,9 +68,9 @@ def report_order_details(body):
     logger.info("Received event order request with a unique id of customer_id")
     
 
-    client = KafkaClient(hosts=f'{app_config["events"]["hostname"]}:{app_config["events"]["port"]}')
-    topic = client.topics[str.encode(app_config["events"]["topic"])]
-    producer = topic.get_sync_producer()
+    #client = KafkaClient(hosts=f'{app_config["events"]["hostname"]}:{app_config["events"]["port"]}')
+    #topic = client.topics[str.encode(app_config["events"]["topic"])]
+    #producer = topic.get_sync_producer()
 
     msg = {"type": "Regular",
            "datetime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
@@ -123,9 +123,9 @@ def report_scheduled_order_details(body):
     logger.info("Received event scheduled_order request with a unique id of customer_id")
     
 
-    client = KafkaClient(hosts=f'{app_config["events"]["hostname"]}:{app_config["events"]["port"]}')
-    topic = client.topics[str.encode(app_config["events"]["topic"])]
-    producer = topic.get_sync_producer()
+    #client = KafkaClient(hosts=f'{app_config["events"]["hostname"]}:{app_config["events"]["port"]}')
+    #topic = client.topics[str.encode(app_config["events"]["topic"])]
+    #producer = topic.get_sync_producer()
 
     msg = {"type": "Scheduled",
            "datetime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
