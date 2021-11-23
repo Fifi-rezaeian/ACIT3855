@@ -1,4 +1,6 @@
 version: 1
+maximum_number_of_retries: 10
+sleep_time: 5
 datastore:
   user: user
   password: password
@@ -8,4 +10,4 @@ datastore:
 events: 
   hostname: kafkaservice.eastus2.cloudapp.azure.com
   port: 9092
-  topic: events
+  topic: events 
