@@ -43,14 +43,14 @@ paths:
           schema: 
             type: string
             format: date-time
-            example: 2016-08-29T09:12:33.001Z
+            example: 2016-08-29T09:12:33
         - name: end_timestamp
           in: query
           description: limits the number of items on a page
           schema: 
             type: string
             format: date-time
-            example: 2016-08-29T09:12:33.001Z
+            example: 2016-08-29T09:12:33
             
       responses:
         '200':
@@ -103,14 +103,14 @@ paths:
           schema: 
             type: string
             format: date-time
-            example: 2016-08-29T09:12:33.001Z
+            example: 2016-08-29T09:12:33
         - name: end_timestamp
           in: query
           description: limits the number of items on a page
           schema: 
             type: string
             format: date-time
-            example: 2016-08-29T09:12:33.001Z
+            example: 2016-08-29T09:12:33
       responses:
         '200':
           description: successfully retured a list of scheduled order events
