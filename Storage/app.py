@@ -17,6 +17,7 @@ from pykafka import KafkaClient
 from pykafka.common import OffsetType
 from threading import Thread
 from sqlalchemy import and_
+import time
 
 if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
     print("In Test Environment")
@@ -134,8 +135,19 @@ def get_report_scheduled_order_details(start_timestamp, end_timestamp):
 def process_messages():
     """ Process event messages """
     hostname = "%s:%d" % (app_config["events"]["hostname"], app_config["events"]["port"])
-    client = KafkaClient(hosts=hostname)
-    topic = client.topics[str.encode(app_config["events"]["topic"])]
+    
+    current_retries = 0
+    while current_retries < app_config["maximum_number_of_retries"]:
+        logger.info("trying to connenct to kafka current retries = %d", (current_retries))
+        try:
+            client = KafkaClient(hosts=hostname)
+            topic = client.topics[str.encode(app_config["events"]["topic"])]
+            currrent_retries = app_config["maximum_number_of_retries"]
+        except:
+            logger.error("connection failed to connenct to kafka")
+            time.sleep(app_config["sleep_time"])
+            current_retries += 1
+            
     # Create a consume on a consumer group, that only reads new messages 
     # (uncommitted messages) when the service re-starts (i.e., it doesn't 
     # read all the old messages from the history in the message queue).
