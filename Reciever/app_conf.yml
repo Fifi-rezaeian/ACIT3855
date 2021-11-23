@@ -1,4 +1,6 @@
 version: 1
+maximum_number_of_retries: 10
+sleep_time: 5
 eventstore1:
   url: http://localhost:8090/food_delivery/order  
 eventstore2:
