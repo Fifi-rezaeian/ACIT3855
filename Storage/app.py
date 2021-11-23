@@ -104,7 +104,7 @@ def get_report_order_details(start_timestamp, end_timestamp):
 
     session.close()
 
-    logger.info("Query for order details after %s returns %d results" % (start_timestamp, end_timestamp, len(results_list)))
+    logger.info("Query for order details after %s returns %d results" % (start_timestamp, len(results_list)))
 
     return results_list, 200
 
@@ -127,7 +127,7 @@ def get_report_scheduled_order_details(start_timestamp, end_timestamp):
 
     session.close()
 
-    logger.info("Query for order details after %s returns %d results" % (start_timestamp, end_timestamp, len(results_list)))
+    logger.info("Query for order details after %s returns %d results" % (start_timestamp, len(results_list)))
 
     return results_list, 200
 
