@@ -142,7 +142,7 @@ def process_messages():
         try:
             client = KafkaClient(hosts=hostname)
             topic = client.topics[str.encode(app_config["events"]["topic"])]
-            currrent_retries = app_config["maximum_number_of_retries"]
+            current_retries = app_config["maximum_number_of_retries"]
         except:
             logger.error("connection failed to connenct to kafka")
             time.sleep(app_config["sleep_time"])
