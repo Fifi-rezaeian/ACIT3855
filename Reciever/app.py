@@ -11,6 +11,7 @@ import logging.handlers
 import datetime
 from pykafka import KafkaClient, client
 from yaml import events
+impoer time
 
 
 MAX_EVENT = 12
@@ -37,6 +38,20 @@ logger = logging.getLogger('basicLogger')
 
 logger.info("App Conf File: %s" % app_conf_file)
 logger.info("Log Conf File: %s" % log_conf_file)
+logger.info("starting receiver for event messages")
+
+current_retries = 0
+while current_retries < app_config["maximum_number_of_retries"]:
+    logger.info("trying to connenct to kafka current retries = %d", (current_retries))
+    try:
+        client = KafkaClient(hosts=f'{app_config["events"]["hostname"]}:{app_config["events"]["port"]}')
+        topic = client.topics[str.encode(app_config["events"]["topic"])]
+        producer = topic.get_sync_producer()
+        currrent_retries = app_config["maximum_number_of_retries"]
+    except:
+        logger.error("connection failed to connenct to kafka")
+        time.sleep(app_config["sleep_time"])
+        current_retries += 1
 
 # My Functions
 
