@@ -11,7 +11,7 @@ import logging.handlers
 import datetime
 from pykafka import KafkaClient, client
 from yaml import events
-impoer time
+import time
 
 
 MAX_EVENT = 12
@@ -68,9 +68,9 @@ def report_order_details(body):
     logger.info("Received event order request with a unique id of customer_id")
     
 
-    client = KafkaClient(hosts=f'{app_config["events"]["hostname"]}:{app_config["events"]["port"]}')
-    topic = client.topics[str.encode(app_config["events"]["topic"])]
-    producer = topic.get_sync_producer()
+    #client = KafkaClient(hosts=f'{app_config["events"]["hostname"]}:{app_config["events"]["port"]}')
+    #topic = client.topics[str.encode(app_config["events"]["topic"])]
+    #producer = topic.get_sync_producer()
 
     msg = {"type": "Regular",
            "datetime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
@@ -123,9 +123,9 @@ def report_scheduled_order_details(body):
     logger.info("Received event scheduled_order request with a unique id of customer_id")
     
 
-    client = KafkaClient(hosts=f'{app_config["events"]["hostname"]}:{app_config["events"]["port"]}')
-    topic = client.topics[str.encode(app_config["events"]["topic"])]
-    producer = topic.get_sync_producer()
+    #client = KafkaClient(hosts=f'{app_config["events"]["hostname"]}:{app_config["events"]["port"]}')
+    #topic = client.topics[str.encode(app_config["events"]["topic"])]
+    #producer = topic.get_sync_producer()
 
     msg = {"type": "Scheduled",
            "datetime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
