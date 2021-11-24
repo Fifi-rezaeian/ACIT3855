@@ -6,7 +6,7 @@ from typing import Counter
 import connexion
 from connexion import NoContent
 import json
-from datetime import date
+import datetime 
 import yaml
 import logging
 import logging.config
@@ -76,17 +76,18 @@ def populate_stats():
                 "last_updated": "2016-08-29T09:12:33Z"}))
 
 
-    curr_time = date.today() 
-    print("Today's date:", curr_time)
+    current_time = datetime.datetime.now()
+    formatted_time = current_time.strftime("%Y-%m-%dT%H:%M:%SZ") 
+    print("Today's date:", formatted_time)
 
     headers = {"content-type": "application/json"}
-    response1 = requests.get(app_config["eventstore1"]["url"], params={"start_timestamp": file_content["last_updated"], "end_timestamp": curr_time })
+    response1 = requests.get(app_config["eventstore1"]["url"], params={"start_timestamp": file_content["last_updated"], "end_timestamp": formatted_time })
     if response1.status_code != 200:
         logger.debug("Error! didn't get 200 response code.")
     else:
         logger.info("successfully got the 200.")
 
-    response2 = requests.get(app_config["eventstore2"]["url"], params={"start_timestamp":file_content["last_updated"], "end_timestamp": curr_time })
+    response2 = requests.get(app_config["eventstore2"]["url"], params={"start_timestamp":file_content["last_updated"], "end_timestamp": formatted_time })
     if response2.status_code != 200:
         logger.debug("Error! didn't get 200 response code.")
     else:
@@ -116,7 +117,7 @@ def populate_stats():
                 "max_order_reading":total_num_max, 
                 "num_sdorder_readings":total_sor_num, 
                 "max_sdorder_reading":total_sor_max,
-                "last_updated":curr_time #datetime.datetime.strftime(datetime.datetime.now(),"%Y-%m-%dT%H:%M:%SZ")
+                "last_updated":formatted_time #datetime.datetime.strftime(datetime.datetime.now(),"%Y-%m-%dT%H:%M:%SZ")
               }
     my_str = json.dumps(my_dict)
     
