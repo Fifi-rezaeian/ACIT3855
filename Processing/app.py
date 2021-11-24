@@ -80,13 +80,13 @@ def populate_stats():
     print("Today's date:", curr_time)
 
     headers = {"content-type": "application/json"}
-    response1 = requests.get(app_config["eventstore1"]["url"], params={"start_timestamp": file_content["last_updated"]} + "&end_timestamp=" + curr_time)
+    response1 = requests.get(app_config["eventstore1"]["url"], params={"start_timestamp": file_content["last_updated"], "end_timestamp", curr_time })
     if response1.status_code != 200:
         logger.debug("Error! didn't get 200 response code.")
     else:
         logger.info("successfully got the 200.")
 
-    response2 = requests.get(app_config["eventstore2"]["url"], params={"start_timestamp":file_content["last_updated"]} + "&end_timestamp=" + curr_time)
+    response2 = requests.get(app_config["eventstore2"]["url"], params={"start_timestamp":file_content["last_updated"], "end_timestamp", curr_time })
     if response2.status_code != 200:
         logger.debug("Error! didn't get 200 response code.")
     else:
