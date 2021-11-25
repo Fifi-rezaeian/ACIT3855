@@ -8,7 +8,9 @@ from pykafka.common import OffsetType
 from flask_cors import CORS, cross_origin
 
 
-if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
+if "TARGET_ENV" not in os.environ or os.environ["TARGET_ENV"] != "test":
+    CORS(app.app)
+    app.app.config['CORS_HEADERS'] = 'Content-Type'
     print("In Test Environment")
     app_conf_file = "/config/app_conf.yml"
     log_conf_file = "/config/log_conf.yml"
@@ -107,9 +109,10 @@ def get_report_scheduled_order_details(index):
 
 
 app = connexion.FlaskApp(__name__, specification_dir='')
-CORS(app.app)
-app.app.config['CORS_HEADERS'] = 'Content-Type'
-app.add_api("openapi.yml",strict_validation=True, validate_responses=True)
+#CORS(app.app)
+#app.app.config['CORS_HEADERS'] = 'Content-Type'
+app.add_api("openapi.yml", base_path="/audit_log", strict_validation=True, validate_responses=True)
+
 
 if __name__ == "__main__":
     app.run(port=8110, debug=True)
