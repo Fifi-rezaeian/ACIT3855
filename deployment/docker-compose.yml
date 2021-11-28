@@ -124,7 +124,7 @@ services:
       - "storage"
       - "processing"
       - "audit_log"
-      - "dashboard-ui"
+      - "dashboard"
 # Names our volume
 volumes:
   my-db:
