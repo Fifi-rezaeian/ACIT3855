@@ -13,8 +13,6 @@ if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
     app_conf_file = "/config/app_conf.yml"
     log_conf_file = "/config/log_conf.yml"
 else:
-    CORS(app.app)
-    app.app.config['CORS_HEADERS'] = 'Content-Type'
     print("In Dev Environment")
     app_conf_file = "app_conf.yml"
     log_conf_file = "log_conf.yml"
@@ -109,8 +107,9 @@ def get_report_scheduled_order_details(index):
 
 
 app = connexion.FlaskApp(__name__, specification_dir='')
-#CORS(app.app)
-#app.app.config['CORS_HEADERS'] = 'Content-Type'
+if "TARGET_ENV" not in os.environ or os.environ["TARGET_ENV"] != 'test':
+    CORS(app.app)
+    app.app.config['CORS_HEADERS']='Content-Type'
 app.add_api("openapi.yml", base_path="/audit_log", strict_validation=True, validate_responses=True)
 
 
