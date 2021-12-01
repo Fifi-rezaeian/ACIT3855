@@ -44,17 +44,6 @@ def get_stats():
     logger.info("The request has been completed")
 
     return data_list, 200
-    # try:
-    #     file=open(app_config["datastore"]["filename"], "r")
-    #     file_content=file.read()
-    #     file_content = json.loads(file_content)
-    #     file.close()
-    #     logger.debug(file_content)
-    #     logger.info("Request has completed.")
-    #     return file_content, 200
-    # except:
-    #     logger.error("Statistics do not exist.")
-    #     return "Statistics do not exist.", 404
 
 
 def populate_stats():
