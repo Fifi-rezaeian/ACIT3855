@@ -1,10 +1,20 @@
 """a basic connexion app called app.py"""
-import os, datetime, connexion, json, yaml, logging, logging.config, logging.handlers, requests
+import os
+import datetime
 from typing import Counter
+#from typing import OrderedDict
+import connexion
 from connexion import NoContent
-from datetime import date
+import json
+import datetime 
+import yaml
+import logging
+import logging.config
+import logging.handlers
+import requests
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask_cors import CORS, cross_origin
+
 
 if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
     print("In Test Environment")
@@ -18,105 +28,106 @@ else:
 with open(app_conf_file, 'r') as f:
     app_config = yaml.safe_load(f.read())
     
+# External Logging Configuration
 with open(log_conf_file, 'r') as f:
     log_config = yaml.safe_load(f.read())
     logging.config.dictConfig(log_config)
     
 logger = logging.getLogger('basicLogger')
+
 logger.info("App Conf File: %s" % app_conf_file)
 logger.info("Log Conf File: %s" % log_conf_file)
 
-data_path = app_config['datastore']['filename']
 
 # my functions
+
 def get_stats():
     """ Gets order and scheduled order processsed statistics """
     logger.info("Request has started.")
-    if os.path.exists(data_path):
-        with open(data_path,"r")as f:
-            data_list = json.load(f)
-    else:
-        logger.error("Statistics do not exist")
-
-    print(data_list)
-
-    logger.debug("The contents of the file are: %s" %(data_list))
-    logger.info("The request has been completed")
-
-    return data_list, 200
+    try:
+        file=open(app_config["datastore"]["filename"], "r")
+        file_content=file.read()
+        file_content = json.loads(file_content)
+        file.close()
+        logger.debug(file_content)
+        logger.info("Request has completed.")
+        return file_content, 200
+    except:
+        logger.error("Statistics do not exist.")
+        return "Statistics do not exist.", 404
 
 
 def populate_stats():
     """ Periodically update stats """
 
     logger.info("Start Periodic Processing")
+    try: 
+        file=open(app_config["datastore"]["filename"], "r")
+        file_content=file.read()
+        file_content = json.loads(file_content)
+        file.close()
+    except:
+        with open(app_config["datastore"]["filename"], "w") as file:
+            file.write(
+                json.dumps({"num_order_readings":0,
+                "max_order_reading":0, 
+                "num_sdorder_readings":0, 
+                "max_sdorder_reading":0,
+                "last_updated": "2016-08-29T09:12:33Z"}))
+
 
     current_time = datetime.datetime.now()
-    formatted_time = current_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+    formatted_time = current_time.strftime("%Y-%m-%dT%H:%M:%SZ") 
+    print("Today's date:", formatted_time)
 
-    if os.path.exists(data_path):
-        with open(data_path,"r")as f:
-            data_list = json.load(f)
-    else:
-        with open(data_path,"w") as f:
-            data_list = {
-                'num_order_readings':0,
-                'num_sdorder_readings': 0,
-                'max_order_reading':0,
-                'max_sdorder_reading': 0,
-                'last_updated': "2016-08-29T09:12:33Z"
-            }
-            f.write(json.dumps(data_list,indent=2))
-        
-        with open(data_path,"r")as f:
-            data_list = json.load(f)
-    
-    current_num_order_readings = data_list['num_order_readings']
-    current_num_sdorder_readings = data_list['num_sdorder_readings']
-    current_max_order_reading = data_list['max_order_reading']
-    current_max_sdorder_reading = data_list['max_sdorder_reading']
-    preivous_time = data_list['last_updated']
-
-
-    response1 = requests.get('http://kafkaservice.eastus2.cloudapp.azure.com/storage/food_delivery/order?start_timestamp=%s&end_timestamp=%s'%(preivous_time,formatted_time))
+    headers = {"content-type": "application/json"}
+    response1 = requests.get(app_config["eventstore1"]["url"], params={"start_timestamp": file_content["last_updated"], "end_timestamp": formatted_time })
     if response1.status_code != 200:
         logger.debug("Error! didn't get 200 response code.")
     else:
         logger.info("successfully got the 200.")
 
-    response2 = requests.get('http://kafkaservice.eastus2.cloudapp.azure.com/storage/food_delivery/scheduled_order?start_timestamp=%s&end_timestamp=%s'%(preivous_time,formatted_time))
+    response2 = requests.get(app_config["eventstore2"]["url"], params={"start_timestamp":file_content["last_updated"], "end_timestamp": formatted_time })
     if response2.status_code != 200:
         logger.debug("Error! didn't get 200 response code.")
     else:
         logger.info("successfully got the 200.")
+    # print(response1.content)
+    # print(response2.json())
+    res_name_array_or = ""
+    res_name_array_or = [el['resturant_name'] for el in json.loads(response1.content)]
+    res_name_array_sor = ""
+    res_name_array_sor = [el['resturant_name'] for el in json.loads(response2.content)]
+
+    total_num_or = len(response1.json())+file_content['num_order_readings']
+
+    total_num_max = file_content["max_order_reading"]
+    logger.debug(res_name_array_or)
+    if len(res_name_array_or) > 0:
+        total_num_max = max(res_name_array_or)
+
+    total_sor_num = len(response2.json())+file_content['num_sdorder_readings']
     
+    total_sor_max = file_content["max_sdorder_reading"]
+    logger.debug(res_name_array_sor)
+    if len(res_name_array_sor) > 0:
+        total_sor_max = max(res_name_array_sor)
 
-    total_num_or = (len(response1.json())+len(response2.json()))
-
-    event_list = []
-    event_list.append(len(response1.json()))
-    event_list.append(len(response2.json()))
-    total_amount_events = len(event_list)
-
-    print(response1.json())
-    print(response2.json())
-    print(event_list)
-    print(total_amount_events)
+    my_dict = {"num_order_readings":total_num_or, 
+                "max_order_reading":total_num_max, 
+                "num_sdorder_readings":total_sor_num, 
+                "max_sdorder_reading":total_sor_max,
+                "last_updated":formatted_time #datetime.datetime.strftime(datetime.datetime.now(),"%Y-%m-%dT%H:%M:%SZ")
+              }
+    my_str = json.dumps(my_dict)
     
-    data_list['num_order_readings'] = (len(response1.json())+current_num_order_readings)
-    data_list['num_sdorder_readings'] = (len(response2.json())+current_num_sdorder_readings)
-    data_list['max_order_reading'] = (total_num_or + current_max_order_reading)
-    data_list['max_sdorder_reading'] =  (total_amount_events + current_max_sdorder_reading)
-    data_list['last_updated'] = formatted_time 
+    file=open(app_config["datastore"]["filename"], "w")
+    file.write(my_str)
+    file.close()
     
-    logger.info("Recieved %d events"% (total_amount_events))
-
     logger.debug("updated static values:")
-    logger.debug("Updated the statistics values new values are: total reservation rentals = %d total same day rentals = %d " % (data_list['num_order_readings'],data_list['num_sdorder_readings']))
+    logger.debug(my_str)
     
-    with open(data_path,"w") as f:
-        f.write(json.dumps(data_list,indent=2))
-
     logger.info("End Periodic Processing")
 
 
@@ -134,4 +145,4 @@ app.add_api("openapi.yaml", base_path="/processing", strict_validation=True, val
 
 if __name__ == "__main__":
     init_scheduler()
-    app.run(port=8100)
+    app.run(port=8100, use_reloader=False)
