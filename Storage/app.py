@@ -1,23 +1,17 @@
 """a basic connexion app called app.py"""
 
-import os
-import connexion
+import os, connexion, yaml, logging, logging.config, logging.handlers, datetime, json, time
 from connexion import NoContent
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from base import Base
 from order import Order
 from scheduled_order import ScheduledOrder
-import yaml
-import logging
-import logging.config
-import logging.handlers
-import datetime, json
 from pykafka import KafkaClient
 from pykafka.common import OffsetType
 from threading import Thread
 from sqlalchemy import and_
-import time
+
 
 if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
     print("In Test Environment")
@@ -28,17 +22,14 @@ else:
     app_conf_file = "app_conf.yml"
     log_conf_file = "log_conf.yml"
     
-    
 with open(app_conf_file, 'r') as f:
     app_config = yaml.safe_load(f.read())
 
-# External Logging Configuration
 with open(log_conf_file, 'r') as f:
     log_config = yaml.safe_load(f.read())
     logging.config.dictConfig(log_config)
 
 logger = logging.getLogger('basicLogger')
-
 logger.info("App Conf File: %s" % app_conf_file)
 logger.info("Log Conf File: %s" % log_conf_file)
 
@@ -85,6 +76,7 @@ def report_scheduled_order_details(body):
     
     logger.debug("stored event scheduled order request with a unique id of customer_id")
 
+    return NoContent, 201
 
 def get_report_order_details(start_timestamp, end_timestamp):
     """ Gets new order details readings after the timestamp """
@@ -94,8 +86,7 @@ def get_report_order_details(start_timestamp, end_timestamp):
     end_timestamp_datetime = datetime.datetime.strptime(end_timestamp, "%Y-%m-%dT%H:%M:%SZ")
 
     readings= session.query(Order).filter(
-        and_(Order.date_created >= start_timestamp_datetime, Order.date_created < end_timestamp_datetime)
-    )
+        and_(Order.date_created >= start_timestamp_datetime, Order.date_created < end_timestamp_datetime))
 
     results_list = []
 
@@ -114,11 +105,10 @@ def get_report_scheduled_order_details(start_timestamp, end_timestamp):
 
     session = DB_SESSION()
     start_timestamp_datetime = datetime.datetime.strptime(start_timestamp,"%Y-%m-%dT%H:%M:%SZ")
-    end_timestamp_datetime = datetime.datetime.strptime(end_timestamp, "%Y-%m-%dT%H:%M:%SZ")
+    end_timestamp_datetime = datetime.datetime.strptime(end_timestamp,"%Y-%m-%dT%H:%M:%SZ")
 
     readings= session.query(ScheduledOrder).filter(
-        and_(ScheduledOrder.date_created >= start_timestamp_datetime, ScheduledOrder.date_created < end_timestamp_datetime)
-    )
+        and_(ScheduledOrder.date_created >= start_timestamp_datetime, ScheduledOrder.date_created < end_timestamp_datetime))
     
     results_list = []
 
@@ -134,9 +124,11 @@ def get_report_scheduled_order_details(start_timestamp, end_timestamp):
 
 def process_messages():
     """ Process event messages """
+    logger.info('Processing event messages started')
     hostname = "%s:%d" % (app_config["events"]["hostname"], app_config["events"]["port"])
     
     current_retries = 0
+    
     while current_retries < app_config["maximum_number_of_retries"]:
         logger.info("trying to connenct to kafka current retries = %d", (current_retries))
         try:
@@ -170,6 +162,8 @@ def process_messages():
             report_scheduled_order_details(payload)
         # Commit the new message as being read
         consumer.commit_offsets()
+    logger.info("Processing Message Completed")
+
 
 app = connexion.FlaskApp(__name__, specification_dir='')
 app.add_api("openapi.yaml", base_path="/storage", strict_validation=True, validate_responses=True)
